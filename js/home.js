@@ -1,4 +1,5 @@
 import postApi from "./api/postApi";
+import { setTextContent } from "./utils";
 
 function createPostElement(post) {
     if (!post) return;
@@ -11,14 +12,12 @@ function createPostElement(post) {
         const liElement = postTemplate.content.firstElementChild.cloneNode(true)
         if (!liElement) return
 
-        const tilteElement = liElement.querySelector('[data-id="title"]')
-        if (tilteElement) tilteElement.textContent = post.title
+        setTextContent(liElement, '[data-id="title"]', post.title)
+        setTextContent(liElement, '[data-id="description"]', post.description)
+        setTextContent(liElement, '[data-id="author"]', post.author)
 
-        const descElement = liElement.querySelector('[data-id="description"]')
-        if (descElement) descElement.textContent = post.description
-
-        const authorElement = liElement.querySelector('[data-id="author"]')
-        if (authorElement) authorElement.textContent = post.author
+        const thumbnailElement = liElement.querySelector('[data-id="thumbnail"]')
+        if (thumbnailElement) thumbnailElement.src = post.imageUrl
 
         return liElement
     } catch (error) {
@@ -29,8 +28,10 @@ function createPostElement(post) {
 function renderPostList(postList) {
     if (!Array.isArray(postList) || postList.length === 0) return;
 
-    const ulElement = document.getElementById('postList')
+
+    const ulElement = document.getElementById('postsList')
     if (!ulElement) return
+
 
     postList.forEach((post) => {
         const liElement = createPostElement(post)
