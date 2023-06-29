@@ -2,6 +2,7 @@ import postApi from "./api/postApi";
 import { getPagination, setTextContent, truncateText } from "./utils";
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime'
+import debounce from 'lodash.debounce'
 dayjs.extend(relativeTime)
 
 
@@ -54,7 +55,12 @@ async function handleFilterChange(filterName, filterValue) {
     try {
         const url = new URL(window.location)
         url.searchParams.set(filterName, filterValue)
+
+        // reset page if it is searched
+        if (filterName === 'title_like') url.searchParams.set('_page', 1)
+
         history.pushState({}, '', url)
+
 
         // fetch api
         // const queryParams = new URLSearchParams(window.location.search)
@@ -88,7 +94,8 @@ function handlePrevClick(e) {
     const page = ulPagination.dataset.page
     if (page <= 1) return
 
-    handleFilterChange("_page", page - 1)
+
+    handleFilterChange('_page', page - 1)
 }
 
 function handleNextClick(e) {
@@ -133,10 +140,26 @@ function renderPagination(pagination) {
     }
 }
 
+function initSearch() {
+    const searchInput = document.getElementById('searchInput')
+    if (!searchInput) return
+
+    const queryParams = new URLSearchParams(window.location.search)
+    if (queryParams.get('title_like')) {
+        searchInput.value = queryParams.get('title_like')
+    }
+
+    const debounceSearch = debounce((event) => handleFilterChange('title_like', event.target.value), 500)
+    searchInput.addEventListener('input', debounceSearch)
+}
+
 (async () => {
     try {
         // call function init default url if it don't have 
         initURL()
+
+        // call function init search post
+        initSearch()
 
         const queryParams = new URLSearchParams(window.location.search)
 
