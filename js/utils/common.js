@@ -12,3 +12,7 @@ export function truncateText(text, maxLength) {
 
     return `${text.slice(0, maxLength - 1)}…`
 }
+
+export function getPagination() {
+    return document.getElementById('postsPagination')
+}
