@@ -1,4 +1,5 @@
-function showModal(modal) {
+function showModal(modalElement) {
+    const modal = new window.bootstrap.Modal(modalElement)
     if (modal) modal.show()
 }
 
@@ -18,7 +19,6 @@ export function resgiterLightbox({ modalId, imgSelector, prevSelector, nextSelec
 
     let imgList = []
     let currentIndex = 0
-    let modal
 
     function showImageAtIndex(index) {
         imageElement.src = imgList[index].src
@@ -31,21 +31,18 @@ export function resgiterLightbox({ modalId, imgSelector, prevSelector, nextSelec
 
         imgList = document.querySelectorAll(`img[data-album="${target.dataset.album}"]`)
         currentIndex = Array.from(imgList).findIndex(x => x === target)
-        modal = new bootstrap.Modal(modalElement)
         showImageAtIndex(currentIndex)
-        showModal(modal)
+        showModal(modalElement)
     })
 
     prevElement.addEventListener('click', () => {
         currentIndex = ((currentIndex - 1) + imgList.length) % imgList.length
         showImageAtIndex(currentIndex)
-        showModal(modal)
     })
 
     nextElement.addEventListener('click', () => {
         currentIndex = (currentIndex + 1) % imgList.length
         showImageAtIndex(currentIndex)
-        showModal(modal)
     })
 
     // mark this is already register

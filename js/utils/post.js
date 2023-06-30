@@ -35,10 +35,21 @@ export function createPostElement(post) {
     // go to post detail if it is clicked post-item
     const divElement = liElement.firstElementChild
     if (divElement) {
-        divElement.addEventListener('click', () => {
+        divElement.addEventListener('click', (event) => {
+            const menu = liElement.querySelector('[data-id="menu"]')
+            // S2: if event click menu --> ingnore
+            if (menu && menu.contains(event.target)) return
             window.location.assign(`/post-detail.html?id=${post.id}`)
         })
     }
+
+    // add click for edit button
+    const editButton = liElement.querySelector('[data-id="edit"]')
+    editButton.addEventListener('click', (event) => {
+        // S1: Use stopPropagation to prevent event bubling
+        // event.stopPropagation()
+        window.location.assign(`/add-edit-post.html?id=${post.id}`)
+    })
 
     return liElement
 }
