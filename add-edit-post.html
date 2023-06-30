@@ -107,10 +107,15 @@
                                         service</a> to get a
                                     random image.
                                 </small>
-                                <button type="button" id="postChangeImage"
-                                    class="btn btn-dark">
-                                    Change post image
-                                </button>
+
+                                <input type="hidden" name="imageUrl">
+
+                                <div class="mt-3">
+                                    <button type="button" id="postChangeImage"
+                                        class="btn btn-dark">
+                                        Change post image
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="text-center">
@@ -129,7 +134,7 @@
         </footer>
 
         <!-- Scripts should be placed here to prevent blocking render UI -->
-        <!-- <script type="module" src="js/add-edit-post.mjs"></script> -->
+        <script type="module" src="./js/add-edit-post.js"></script>
     </body>
 
 </html>
