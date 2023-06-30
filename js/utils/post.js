@@ -30,6 +30,16 @@ export function createPostElement(post) {
 
     let timeSpan = dayjs(post.updatedAt).fromNow()
     setTextContent(liElement, '[data-id="timeSpan"]', `- ${timeSpan}`)
+
+    // attach events
+    // go to post detail if it is clicked post-item
+    const divElement = liElement.firstElementChild
+    if (divElement) {
+        divElement.addEventListener('click', () => {
+            window.location.assign(`/post-detail.html?id=${post.id}`)
+        })
+    }
+
     return liElement
 }
 
