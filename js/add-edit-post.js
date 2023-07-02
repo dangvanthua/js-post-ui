@@ -1,6 +1,20 @@
 import postApi from "./api/postApi"
 import { initPostForm } from "./utils/post-form.js"
 
+async function handlePostFormSubmit(formValue) {
+    try {
+        // check id edit add/update
+        const savePost = formValue.id ?
+            await postApi.update(formValue) :
+            await postApi.add(formValue)
+
+        // redirect post detail page
+        window.location.assign(`/post-detail.html?id=${savePost.id}`)
+    } catch (error) {
+        console.log('failed to fetch API', error)
+    }
+}
+
 (async () => {
 
     try {
@@ -18,7 +32,7 @@ import { initPostForm } from "./utils/post-form.js"
         initPostForm({
             formId: 'postForm',
             defaultValues,
-            onSubmit: (formValue) => console.log('submit', formValue)
+            onSubmit: handlePostFormSubmit
         })
     } catch (error) {
         console.log('failed fetch post from api', error)
