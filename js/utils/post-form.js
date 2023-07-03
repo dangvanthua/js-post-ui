@@ -1,6 +1,10 @@
 import { setFieldValue, setBackgroundImage, setTextContent, randomImage } from "./common"
 import * as yup from 'yup'
 
+const ImageSource = {
+    PICSUM: 'picsum',
+    UPLOAD: 'upload',
+}
 
 function setFormValue(form, formValues) {
     setFieldValue(form, '[name="title"]', formValues.title)
@@ -24,13 +28,42 @@ function initRandomImage(form) {
     })
 }
 
+function renderImageSource(form, value) {
+    const controlList = form.querySelectorAll('[data-id="imageSource"]')
+    if (!controlList) return
+
+    controlList.forEach((control) => {
+        control.hidden = control.dataset.imageSource !== value
+    })
+}
+
+function initRadioImage(form) {
+    if (!form) return
+
+    const radioList = form.querySelectorAll('[name="imageSource"]')
+    if (!radioList) return
+
+    radioList.forEach((radio) => {
+        radio.addEventListener('change', (event) => {
+            renderImageSource(form, event.target.value)
+        })
+    })
+}
+
+function initFormImage(form) {
+    const uploadImage = form.querySelector('[name="image"]')
+    if (!uploadImage) return
+
+    uploadImage.addEventListener('change', (event) => {
+        const file = URL.createObjectURL(event.target.files[0])
+        if (file) {
+            setBackgroundImage(document, '#postHeroImage', file)
+        }
+    })
+}
+
 function getFormValues(form) {
     const formValues = {}
-
-    // ['title', 'author', 'description', 'imageUrl'].forEach((name) => {
-    //     const field = form.querySelector(`[name="${name}"]`)
-    //     if (field) values[name] = field.value
-    // })
 
     // S2: using form data
     const data = new FormData(form)
@@ -41,32 +74,6 @@ function getFormValues(form) {
     return formValues
 }
 
-// function getTitleError(form) {
-//     const titleElement = form.querySelector('[name="title"]')
-//     if (!titleElement) return
-
-//     if (titleElement.validity.valueMissing) {
-//         return 'Please enter title'
-//     }
-
-//     if (titleElement.value.split(' ').filter(x => !!x && x.length >= 3).length < 2) {
-//         return 'Please enter at least two words of three characters'
-//     }
-
-//     return ''
-// }
-
-// function getAuthorError(form) {
-//     const authorElement = form.querySelector('[name="author"]')
-//     if (!authorElement) return
-
-//     if (!authorElement.validity.valueMissing) {
-//         return 'Please enter author name'
-//     }
-
-//     return ''
-// }
-
 function getPostSchema() {
     return yup.object().shape({
         title: yup.string().required('Please enter title'),
@@ -75,7 +82,11 @@ function getPostSchema() {
                 'Please enter at least two words of three characters',
                 (value) => value.split(' ').filter(x => !!x && x.length >= 3).length >= 2),
         description: yup.string(),
-        imageUrl: yup.string().required('Please random background image').url('Please enter a valid url')
+        imageSource: yup.string().required('Please select an image source').oneOf([ImageSource.PICSUM, ImageSource.UPLOAD], 'Invalid image source'),
+        image: yup.mixed().when('imageSource', {
+            is: ImageSource.UPLOAD,
+            then: yup.mixed().test('required', 'Please select image to upload', (value) => Boolean(value.name))
+        }),
     })
 }
 
@@ -89,20 +100,6 @@ function setFieldError(form, name, error) {
 
 
 async function validatePostForm(form, formValues) {
-    // get errors
-    // const errors = {
-    //     title: getTitleError(form),
-    //     author: getAuthorError(form),
-    // }
-
-    // // get error into validate
-    // for (const key in errors) {
-    //     const element = form.querySelector(`[name="${key}"]`)
-    //     if (element) {
-    //         element.setCustomValidity(`${errors[key]}`)
-    //         setTextContent(element.parentElement, '.invalid-feedback', errors[key])
-    //     }
-    // }
 
     try {
         // reset previous errors
@@ -148,13 +145,18 @@ function hideLoading(form) {
     button.textContent = 'Save'
 }
 
+
+
 export function initPostForm({ formId, defaultValues, onSubmit }) {
     const form = document.getElementById(formId)
     if (!form) return
 
     let isSubmit = false
     setFormValue(form, defaultValues)
+
+    initRadioImage(form)
     initRandomImage(form)
+    initFormImage(form)
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault()
@@ -173,6 +175,8 @@ export function initPostForm({ formId, defaultValues, onSubmit }) {
         // Otherwise it will show error validate
         const isValid = await validatePostForm(form, formValues)
         if (isValid) await onSubmit(formValues)
+
+        // hide submiting and prevent submit consecutive
         hideLoading(form)
         isSubmit = true
     })
