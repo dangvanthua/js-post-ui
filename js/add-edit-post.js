@@ -1,5 +1,7 @@
 import postApi from "./api/postApi"
 import { initPostForm } from "./utils/post-form.js"
+import { toast } from "./utils/toasts"
+
 
 async function handlePostFormSubmit(formValue) {
     try {
@@ -8,10 +10,15 @@ async function handlePostFormSubmit(formValue) {
             await postApi.update(formValue) :
             await postApi.add(formValue)
 
+
+        toast.success('Save post success')
         // redirect post detail page
-        window.location.assign(`/post-detail.html?id=${savePost.id}`)
+        setTimeout(() => {
+            window.location.assign(`/post-detail.html?id=${savePost.id}`)
+        }, 1600)
     } catch (error) {
         console.log('failed to fetch API', error)
+        toast.error(`Error: ${error.message}`)
     }
 }
 

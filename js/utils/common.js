@@ -29,3 +29,8 @@ export function setBackgroundImage(parent, selector, imageUrl) {
         imageHero.style.backgroundImage = `url("${imageUrl}")`
     }
 }
+
+export function randomImage(number) {
+    const randomNumber = Math.random() * number
+    return Math.round(randomNumber)
+}
