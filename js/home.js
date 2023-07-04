@@ -1,11 +1,31 @@
 import postApi from "./api/postApi";
-import { initPagination, initSearch, renderPagination, renderPostList } from './utils'
+import { initPagination, initSearch, renderPagination, renderPostList, toast } from './utils'
+
+function registerPostDeleteEvent() {
+    document.addEventListener('post-delete', async (event) => {
+        try {
+            const post = event.detail
+            const message = `Are you want to remove post have title "${post.title}"`
+
+            if (window.confirm(message)) {
+                await postApi.remove(post.id)
+                await handleFilterChange()
+
+                // notice toast success after remove post
+                toast.success('Remove post success')
+            }
+
+        } catch (error) {
+            console.log('fail to remove post', error)
+            toast.error(error.message)
+        }
+    })
+}
 
 async function handleFilterChange(filterName, filterValue) {
     try {
         const url = new URL(window.location)
-        url.searchParams.set(filterName, filterValue)
-
+        if (filterName) url.searchParams.set(filterName, filterValue)
         // reset page if it is searched
         if (filterName === 'title_like') url.searchParams.set('_page', 1)
 
@@ -36,14 +56,14 @@ async function handleFilterChange(filterName, filterValue) {
         history.pushState({}, '', url)
         const queryParams = url.searchParams;
 
+        registerPostDeleteEvent()
+
         // call function init search post
         initSearch({
             elementId: 'searchInput',
             defaultParams: queryParams,
             onChange: (value) => handleFilterChange('title_like', value)
         })
-
-        const { data, pagination } = await postApi.getAll(queryParams)
 
         // call function init paginantion 
         initPagination({
@@ -52,10 +72,7 @@ async function handleFilterChange(filterName, filterValue) {
             onChange: (page) => handleFilterChange('_page', page),
         })
 
-        // call function to render list of post 
-        renderPostList(data)
-
-        renderPagination('postsPagination', pagination)
+        handleFilterChange()
 
     } catch (error) {
         console.log('get all failed', error)

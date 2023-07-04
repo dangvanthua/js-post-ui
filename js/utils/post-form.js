@@ -81,11 +81,25 @@ function getPostSchema() {
             .test('at-least-two-words',
                 'Please enter at least two words of three characters',
                 (value) => value.split(' ').filter(x => !!x && x.length >= 3).length >= 2),
+
         description: yup.string(),
+
         imageSource: yup.string().required('Please select an image source').oneOf([ImageSource.PICSUM, ImageSource.UPLOAD], 'Invalid image source'),
+
+        imageUrl: yup.string().when('imageSource', {
+            is: ImageSource.PICSUM,
+            then: yup.string().required('Please random an image source')
+                .url('Please enter a valid url')
+        }),
+
         image: yup.mixed().when('imageSource', {
             is: ImageSource.UPLOAD,
-            then: yup.mixed().test('required', 'Please select image to upload', (value) => Boolean(value.name))
+            then: yup.mixed().test('required', 'Please select image to upload', (file) => Boolean(file.name))
+                .test('max-3mb', 'The image too large (max 3mb)', (file) => {
+                    const fileSize = file.size
+                    const maxSizeFile = 15 * 1024
+                    return fileSize <= maxSizeFile
+                }),
         }),
     })
 }

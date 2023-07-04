@@ -51,6 +51,17 @@ export function createPostElement(post) {
         window.location.assign(`/add-edit-post.html?id=${post.id}`)
     })
 
+    // add click for remove button
+    const removeButton = liElement.querySelector('[data-id="remove"]')
+    removeButton.addEventListener('click', (event) => {
+        const customEvent = new CustomEvent('post-delete', {
+            bubbles: true,
+            detail: post,
+        })
+
+        removeButton.dispatchEvent(customEvent)
+    })
+
     return liElement
 }
 

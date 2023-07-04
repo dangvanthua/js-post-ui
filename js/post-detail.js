@@ -33,6 +33,8 @@ function renderPostDetail(post) {
         editPageLink.innerHTML = '<i class="fas fa-edit"></i> Edit post'
     }
 
+
+
 }
 
 (async () => {
